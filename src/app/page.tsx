@@ -73,12 +73,19 @@ export default function Home() {
 
     tryAutoplayWithAudio();
 
+    // iOS Safari pauses inline video when the user scrolls — resume it silently
+    const handleVideoPause = () => {
+      videoRef.current?.play().catch(() => { });
+    };
+    videoRef.current?.addEventListener("pause", handleVideoPause);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("click", unmuteOnInteraction);
       window.removeEventListener("keydown", unmuteOnInteraction);
       window.removeEventListener("scroll", unmuteOnInteraction);
       window.removeEventListener("touchstart", unmuteOnInteraction);
+      videoRef.current?.removeEventListener("pause", handleVideoPause);
       clearTimeout(timeout);
     };
   }, []);
