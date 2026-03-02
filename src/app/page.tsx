@@ -186,7 +186,7 @@ export default function Home() {
             playsInline
             className="absolute inset-0 w-full h-full object-cover opacity-60 scale-110"
           >
-            <source src="/The Legends of Bulan - Teaser  Magic Carpet Studios.mp4" type="video/mp4" />
+            <source src="https://res.cloudinary.com/dt2vu9jje/video/upload/f_auto,q_auto/v1772454188/The_Legends_of_Bulan_-_Teaser_Magic_Carpet_Studios_t0phpo.mp4" type="video/mp4" />
           </video>
         </div>
 
