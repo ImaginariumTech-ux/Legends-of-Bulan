@@ -12,6 +12,10 @@ const cinzel = Cinzel({
 export const metadata: Metadata = {
   title: "LOB | Cinematic Experience",
   description: "Official landing page for the upcoming motion picture.",
+  icons: {
+    icon: "/lob.png",
+    apple: "/lob.png",
+  },
 };
 
 export default function RootLayout({

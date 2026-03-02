@@ -41,15 +41,21 @@ export default function Home() {
     // Auto-start hero typing after preloader
     const timeout = setTimeout(() => setIsTypingStarted(true), 1500);
 
-    // Helper to unmute on first interaction
+    // Only fire on genuine tap/click — scroll excluded intentionally.
+    // Scroll has no user-gesture permission for audio on mobile and was
+    // causing the video to freeze when muted=false was set without play().
     const unmuteOnInteraction = () => {
       if (videoRef.current) {
         videoRef.current.muted = false;
+        videoRef.current.play().catch(() => {
+          // Browser rejected unmuted play — keep muted
+          if (videoRef.current) videoRef.current.muted = true;
+          setIsMuted(true);
+        });
         setIsMuted(false);
       }
       window.removeEventListener("click", unmuteOnInteraction);
       window.removeEventListener("keydown", unmuteOnInteraction);
-      window.removeEventListener("scroll", unmuteOnInteraction);
       window.removeEventListener("touchstart", unmuteOnInteraction);
     };
 
@@ -59,33 +65,35 @@ export default function Home() {
       videoRef.current.muted = false;
       try {
         await videoRef.current.play();
-        setIsMuted(false); // browser allowed it — audio is live
+        setIsMuted(false);
       } catch {
-        // Browser blocked unmuted autoplay — play muted and wait for gesture
+        // Browser blocked unmuted autoplay — play muted and wait for a tap
         videoRef.current.muted = true;
         setIsMuted(true);
         window.addEventListener("click", unmuteOnInteraction);
         window.addEventListener("keydown", unmuteOnInteraction);
-        window.addEventListener("scroll", unmuteOnInteraction);
         window.addEventListener("touchstart", unmuteOnInteraction);
       }
     };
 
     tryAutoplayWithAudio();
 
-    // iOS Safari pauses inline video when the user scrolls — resume it silently
-    const handleVideoPause = () => {
-      videoRef.current?.play().catch(() => { });
-    };
-    videoRef.current?.addEventListener("pause", handleVideoPause);
+    // Heartbeat: keep the muted background video alive on mobile.
+    // Calling .play() on a MUTED video from a timer is always allowed —
+    // no user gesture required. This is the most reliable mobile fix.
+    const keepAlive = setInterval(() => {
+      if (videoRef.current?.paused && !videoRef.current?.ended) {
+        videoRef.current.play().catch(() => { });
+      }
+    }, 300);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("click", unmuteOnInteraction);
       window.removeEventListener("keydown", unmuteOnInteraction);
-      window.removeEventListener("scroll", unmuteOnInteraction);
       window.removeEventListener("touchstart", unmuteOnInteraction);
-      videoRef.current?.removeEventListener("pause", handleVideoPause);
+      videoRef.current?.removeEventListener("pause", () => { });
+      clearInterval(keepAlive);
       clearTimeout(timeout);
     };
   }, []);
