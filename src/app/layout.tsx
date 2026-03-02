@@ -10,8 +10,8 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
-  title: "LOB | Cinematic Experience",
-  description: "Official landing page for the upcoming motion picture.",
+  title: "Legends of Bulan ",
+  description: "All wars are fought twice",
   icons: {
     icon: "/lob.png",
     apple: "/lob.png",
